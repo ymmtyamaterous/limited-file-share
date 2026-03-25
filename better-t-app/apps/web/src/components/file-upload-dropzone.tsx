@@ -1,4 +1,4 @@
-import { FileUp, X } from "lucide-react";
+import { FileIcon, X } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 
 import { cn } from "@better-t-app/ui/lib/utils";
@@ -17,7 +17,7 @@ export function FileUploadDropzone({ onFileSelect, selectedFile }: FileUploadDro
   const handleFile = useCallback(
     (file: File) => {
       if (file.size > MAX_FILE_SIZE) {
-        alert("ファイルサイズが上限（50MB）を超えています");
+        alert("ファイルサイズが50MBを超えています。");
         return;
       }
       onFileSelect(file);
@@ -50,48 +50,67 @@ export function FileUploadDropzone({ onFileSelect, selectedFile }: FileUploadDro
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
-  return (
-    <div>
-      <div
-        className={cn(
-          "flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 transition-colors cursor-pointer",
-          isDragging
-            ? "border-primary bg-primary/5"
-            : "border-muted-foreground/30 hover:border-primary/50 hover:bg-muted/50",
-        )}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        onClick={() => inputRef.current?.click()}
-        onKeyDown={(e) => e.key === "Enter" && inputRef.current?.click()}
-      >
-        <FileUp className="mb-3 h-10 w-10 text-muted-foreground" />
-        <p className="text-sm font-medium">ドラッグ＆ドロップ</p>
-        <p className="mt-1 text-xs text-muted-foreground">
-          またはクリックでファイルを選択（最大 50MB）
-        </p>
-        <input ref={inputRef} type="file" className="hidden" onChange={handleInputChange} />
+  if (selectedFile) {
+    return (
+      <div className="flex items-center gap-2.5 rounded-lg border bg-muted/50 px-3 py-2.5 text-sm">
+        <FileIcon className="h-4 w-4 flex-shrink-0 text-indigo-500 dark:text-indigo-400" />
+        <span className="flex-1 truncate font-medium">{selectedFile.name}</span>
+        <span className="flex-shrink-0 text-[0.78rem] text-muted-foreground">
+          {formatSize(selectedFile.size)}
+        </span>
+        <button
+          type="button"
+          onClick={() => {
+            onFileSelect(null);
+            if (inputRef.current) inputRef.current.value = "";
+          }}
+          className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
       </div>
+    );
+  }
 
-      {selectedFile && (
-        <div className="mt-3 flex items-center justify-between rounded-md border bg-muted/50 px-3 py-2">
-          <div className="min-w-0">
-            <p className="truncate text-sm font-medium">{selectedFile.name}</p>
-            <p className="text-xs text-muted-foreground">{formatSize(selectedFile.size)}</p>
-          </div>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onFileSelect(null);
-              if (inputRef.current) inputRef.current.value = "";
-            }}
-            className="ml-2 rounded p-1 hover:bg-muted"
-          >
-            <X className="h-4 w-4 text-muted-foreground" />
-          </button>
-        </div>
+  return (
+    <div
+      className={cn(
+        "relative cursor-pointer rounded-lg border-2 border-dashed px-4 py-10 text-center transition-colors",
+        isDragging
+          ? "border-indigo-500 bg-indigo-500/5"
+          : "border-border hover:border-indigo-500/60 hover:bg-muted/30",
       )}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      onClick={() => inputRef.current?.click()}
+      onKeyDown={(e) => e.key === "Enter" && inputRef.current?.click()}
+    >
+      <input ref={inputRef} type="file" className="absolute inset-0 cursor-pointer opacity-0" onChange={handleInputChange} />
+      {/* 円形アイコン */}
+      <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-indigo-500/10">
+        <svg
+          className="h-[22px] w-[22px] text-indigo-500 dark:text-indigo-400"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="17 8 12 3 7 8" />
+          <line x1="12" y1="3" x2="12" y2="15" />
+        </svg>
+      </div>
+      <p className="mb-1 text-[0.9rem] font-semibold">
+        ファイルをドロップ、または{" "}
+        <span className="text-indigo-600 dark:text-indigo-400">クリックして選択</span>
+      </p>
+      <p className="text-[0.8rem] text-muted-foreground">
+        最大 <span className="font-semibold text-indigo-500 dark:text-indigo-400">50MB</span> まで対応
+      </p>
     </div>
   );
 }
+
