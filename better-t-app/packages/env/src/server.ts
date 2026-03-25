@@ -9,6 +9,8 @@ export const env = createEnv({
     BETTER_AUTH_URL: z.url(),
     CORS_ORIGIN: z.url(),
     NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+    UPLOAD_DIR: z.string().default("uploads"),
+    BASE_URL: z.url().default("http://localhost:3000"),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

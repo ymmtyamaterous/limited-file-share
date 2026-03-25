@@ -1,5 +1,6 @@
 import { createContext } from "@better-t-app/api/context";
 import { appRouter } from "@better-t-app/api/routers/index";
+import { cleanupExpiredShares } from "@better-t-app/api/routers/share";
 import { auth } from "@better-t-app/auth";
 import { env } from "@better-t-app/env/server";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
@@ -74,5 +75,12 @@ app.use("/*", async (c, next) => {
 app.get("/", (c) => {
   return c.text("OK");
 });
+
+// 起動時に一度クリーンアップし、その後1時間ごとに実行
+cleanupExpiredShares().catch(console.error);
+setInterval(
+  () => cleanupExpiredShares().catch(console.error),
+  60 * 60 * 1000,
+);
 
 export default app;
